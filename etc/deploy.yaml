@@ -1,0 +1,14 @@
+#私钥
+PriKey: xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+#ethrpc请求配置
+EthRpcConf:
+  Url: https://rpc.ankr.com/avalanche  #Url:请求rpc地址 修改来替换各链rpc地址
+  IntervalTime: 1  #IntervalTime 间隔时间
+  PrefixNumber: 500 #PrefixNumber 前置区块数量 从当前区块之前多少块查
+
+#minted限制,用来过滤非热门铭文
+MintedLimit:
+  AddrCount: 100 #minted该铭文的地址数 只有比当前数量大才去minted
+  TotalCount: 2000 #minted该铭文的总交易数 只有比当前数量大才去minted
+  MintCount: 2 #mint该铭文的张数
