@@ -1,9 +1,9 @@
 #私钥
-PriKey: xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+PriKey: 替换成你的私钥
 
 #ethrpc请求配置
 EthRpcConf:
-  Url: https://rpc.ankr.com/avalanche  #Url:请求rpc地址 修改来替换各链rpc地址
+  Url: 替换成想要打的链的rpc  #Url:请求rpc地址 修改来替换各链rpc地址
   IntervalTime: 1  #IntervalTime 间隔时间
   PrefixNumber: 500 #PrefixNumber 前置区块数量 从当前区块之前多少块查
 
