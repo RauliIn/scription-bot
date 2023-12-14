@@ -66,7 +66,6 @@ func main() {
 
 			if _, ok = isMintedInputDataHashMap[data]; !ok {
 				logx.Infof("===============minting===============")
-				logx.Infof(data)
 
 				//设置为已经minted
 				isMintedInputDataHashMap[data] = struct{}{}
@@ -88,7 +87,7 @@ func main() {
 	defer ants.Release()
 
 	for range ticker.C {
-		logx.Infof("===============scan blockNumber:%d===============", blockNumber)
+		//logx.Infof("===============scan blockNumber:%d===============", blockNumber)
 		//获取区块
 		block, err := client.BlockByNumber(ctx, big.NewInt(int64(blockNumber-c.EthRpcConf.PrefixNumber)))
 
@@ -102,7 +101,7 @@ func main() {
 		if transactions.Len() < 1 {
 			continue
 		}
-
+		//todo 没有看到transaction有from属性，暂时没做from和to的判断
 		//遍历交易
 		for _, transaction := range transactions {
 			wg.Add(1)
@@ -127,7 +126,8 @@ func main() {
 				}
 
 				if err != nil {
-					logx.Errorf("json.Unmarshal:%s", inputData)
+					//链上有太多有问题的inputdata,写满了控制台,注释掉了
+					//logx.Errorf("json.Unmarshal:%s", inputData)
 					return
 				}
 
@@ -137,7 +137,7 @@ func main() {
 				mutex.Lock()
 				//如果已经minted过的
 				if _, ok = isMintedInputDataHashMap[inputData]; ok {
-					logx.Infof("addrMintTickHashMap.len:%d", len(addrMintTickHashMap))
+					//logx.Infof("addrMintTickHashMap.len:%d", len(addrMintTickHashMap))
 					//惰性删除minted的key
 					delete(addrMintTickHashMap, addrMintTickHashMapKey)
 					return
@@ -186,31 +186,38 @@ func sendTx(client *ethclient.Client, inputData []byte, priKey string) {
 	}
 	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
 	toAddress := fromAddress
+
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
 		logx.Errorf("crypto.PubkeyToAddress:%s", err.Error())
 	}
+
 	value := big.NewInt(0)
 	gasLimit := uint64(210000)
 	gasPrice, err := client.SuggestGasPrice(context.Background())
+
 	if err != nil {
 		logx.Errorf("client.SuggestGasPrice:%s", err.Error())
 	}
 
 	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, inputData)
+
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
 		logx.Errorf(" client.NetworkID:%s", err.Error())
 	}
+
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
 	if err != nil {
 		logx.Errorf(" client.NetworkID:%s", err.Error())
 	}
+
 	err = client.SendTransaction(context.Background(), signedTx)
 	if err != nil {
 		logx.Errorf(" client.NetworkID:%s", err.Error())
 	}
-	logx.Infof("tx hash: %s,data:%s", signedTx.Hash().Hex(), inputData)
+
+	logx.Infof("addr:%s send tx hash: %s,data:  %s", fromAddress, signedTx.Hash().Hex(), inputData)
 }
 
 // TxData 截取 data:, 后的结构体
